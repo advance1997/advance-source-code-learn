@@ -10,4 +10,4 @@
 
 ## 本地构建适配
 
-按学习工程要求，将 source/pom.xml 的主代码和测试 Java 版本统一为 21。Modernizer 的 API 检查基线保持为官方原来的 11，避免要求重写源码以采用 Java 21 新 API；这不影响 Java 21 编译目标。其余官方源码保持原样。
+按学习工程要求，将 source/pom.xml 的主代码和测试 Java 版本统一为 21。Modernizer 的 API 检查基线保持为官方原来的 11，避免要求重写源码以采用 Java 21 新 API；这不影响 Java 21 编译目标。另外将 `modernizer-maven-annotations` 明确固定为 3.5.0，并声明为可选的普通编译依赖；不会向示例传递该构建注解库。其余官方源码保持原样。

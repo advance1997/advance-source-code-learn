@@ -106,12 +106,13 @@
   </properties>
 
   <dependencies>
-    <!-- TODO Remove this after parent 53 release -->
+    <!-- 源码编译需要该注解，其版本独立于现代化检查插件，不向使用者传递。 -->
     <dependency>
       <groupId>org.gaul</groupId>
       <artifactId>modernizer-maven-annotations</artifactId>
-      <version>${modernizer.plugin}</version>
-      <scope>provided</scope>
+      <version>3.5.0</version>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
 
     <dependency>

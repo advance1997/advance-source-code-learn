@@ -11,7 +11,7 @@
 ## Windows 本地启动
 
 1. 在 IDE 中打开 `E:\advance-source-code-learn\pom.xml`，将项目 SDK、Maven 导入和运行 JDK 均设置为 21，然后重新加载 Maven 项目。
-2. 复制根目录 `env.conf.example` 为 `env.conf`，手动填写 MySQL 地址、用户名和密码。`env.conf` 已被 Git 忽略。
+2. 直接在根目录 `env.conf` 中填写 `MYSQL_URL`、`MYSQL_USER`、`MYSQL_PASSWORD`。本机文件不存在时新建这一个文件即可，格式见示例运行说明。`env.conf` 已被 Git 忽略。
 3. 在你自己的 MySQL 中创建 `mybatis_learning` 学习数据库，并执行示例的 `database/init.sql`。
 4. 直接运行 `FirstQueryApplication.main`，使用 `mybatis-first-query` 模块的类路径。工作目录设为 `E:\advance-source-code-learn` 或该目录下的子模块。
 
