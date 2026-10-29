@@ -5,3 +5,6 @@
 .env.*
 !.env.example
 **/.mvn/wrapper/maven-wrapper.jar
+
+# 本机全局配置：仅提交变量名模板，不提交实际值。
+env.conf

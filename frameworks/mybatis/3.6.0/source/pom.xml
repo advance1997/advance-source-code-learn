@@ -64,8 +64,10 @@
 
   <properties>
     <!-- Java Usage -->
-    <java.version>11</java.version>
-    <java.release.version>11</java.release.version>
+    <java.version>21</java.version>
+    <java.release.version>21</java.release.version>
+    <java.test.version>21</java.test.version>
+    <java.test.release.version>21</java.test.release.version>
 
     <clirr.comparisonVersion>3.4.6</clirr.comparisonVersion>
 
@@ -326,6 +328,14 @@
 
   <build>
     <plugins>
+      <!-- 保留官方源码的 API 检查基线，编译和运行仍统一使用 JDK 21。 -->
+      <plugin>
+        <groupId>org.gaul</groupId>
+        <artifactId>modernizer-maven-plugin</artifactId>
+        <configuration>
+          <javaVersion>11</javaVersion>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

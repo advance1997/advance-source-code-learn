@@ -1,48 +1,36 @@
-# 第一个示例：MySQL 主键查询
+# 最小示例：查询 MySQL 用户
 
-目标：调用 `UserMapper.selectById(1L)`，从 MySQL 读取用户并输出 `查询结果：id=1, name=advance`。
-仅包含一个启动类、一个 Mapper 接口、一个用户对象和一份 MyBatis XML 配置。
+入口：`io.github.advance1997.learning.mybatis.FirstQueryApplication.main`。
+示例只有启动类、Mapper 接口、用户对象和 MyBatis XML 配置，不使用 Spring、Docker 或运行脚本。
 
-## 一条命令运行
+## 本机配置
 
-依赖 JDK 21、Docker Compose v2、Bash 和 OpenSSL。在仓库根目录执行：
+将仓库根目录的 `env.conf.example` 复制为 `env.conf`，由你手动填写：
 
-```bash
-./frameworks/mybatis/3.6.0/examples/first-query/run.sh
+| 变量名 | 用途 |
+| --- | --- |
+| `MYSQL_URL` | JDBC 地址，例如 `jdbc:mysql://127.0.0.1:3306/mybatis_learning?connectionTimeZone=UTC` |
+| `MYSQL_USER` | MySQL 用户名 |
+| `MYSQL_PASSWORD` | MySQL 密码 |
+
+`env.conf` 使用 UTF-8 的 Java Properties 格式（支持 UTF-8 BOM），每行 `变量名=变量值`，不要加引号，反斜杠写为 `\\`。不支持 shell 的 `export` 或变量插值。值不要加无意义的前后空格。
+
+程序从当前工作目录向上查找 `env.conf`，读取后传给 MyBatis；XML 直接通过 `${MYSQL_URL}`、`${MYSQL_USER}`、`${MYSQL_PASSWORD}` 引用配置。不读取旧 `.env` 或系统中的同名环境变量。
+`env.conf` 不打包进 JAR，也不提交到 Git；只有不含实际值的变量模板需要版本管理。后续框架可在同一文件增加独立命名的变量。
+
+## 准备数据库并运行
+
+1. 使用 JDK 21，在 IDE 打开仓库根 `pom.xml`，重新加载 Maven 模块。
+2. 在自己的 MySQL 中创建 `mybatis_learning` 学习数据库，并在该库执行 `database/init.sql`。脚本不会创建数据库或账号。
+3. 配置根目录 `env.conf`；运行配置的工作目录设为 `E:\advance-source-code-learn`，类路径使用 `mybatis-first-query` 模块。
+4. 直接运行 `FirstQueryApplication.main`。
+
+预期结果：`查询结果：id=1, name=advance`。
+
+IDE 应将 `org.mybatis:mybatis` 关联到当前工程的 `source` 模块。如果需要先安装本地源码，在根目录 PowerShell 执行：
+
+```powershell
+.\mvnw.cmd -pl :mybatis-first-query -am -Dmaven.test.skip=true install
 ```
 
-脚本生成被 Git 忽略的 `.env`，启动 MySQL 8.4（仅绑定 `127.0.0.1:13306`），等待查询健康检查通过，构建源码和示例，再调用启动类。MySQL 数据保存在独立命名卷中。重复运行会复用密码、容器和数据。
-
-运行时明确把 `source/target/mybatis-3.6.0.jar` 放入类路径，并排除依赖列表里的其他 MyBatis JAR。不会用远程发布包替代本地构建产物。
-构建使用 `-Dmaven.test.skip=true`：本次只验证源码构建与真实 MySQL 查询，不执行上游完整测试集。
-
-若需要使用已安装的 Maven，可设置 `MVN=/绝对路径/mvn`。代理等本机参数通过 `MAVEN_SETTINGS=/绝对路径/settings.xml` 提供，不写入仓库。
-
-## IDE 启动
-
-1. 打开仓库根 `pom.xml`，使用 JDK 21 导入所有 Maven 模块。
-2. 首次执行上述脚本，完成数据库初始化。
-3. 打开 `FirstQueryApplication`，在运行配置中设置 `MYSQL_PASSWORD`，值取自本机 `.env`，不要将密码提交到 Git。
-4. 直接运行 `main`；可选环境变量 `MYSQL_URL`、`MYSQL_USER` 用于覆盖连接参数。
-
-IDE 运行配置的 classpath 使用 `mybatis-first-query` 模块，MyBatis 依赖应关联同一聚合工程内的 `source` 模块。
-
-## 使用自己的 MySQL
-
-自行创建独立的 `mybatis_learning` 学习数据库和用户，在该库执行 `database/init.sql`，然后在 IDE 中设置：
-
-- `MYSQL_URL`：你的 JDBC 连接地址。
-- `MYSQL_USER`：具备查询权限的学习用户。
-- `MYSQL_PASSWORD`：该用户密码。
-
-直接运行 `FirstQueryApplication.main`。`run.sh` 专门用于本地容器验证，会使用其自身连接配置。
-
-## 停止数据库
-
-在仓库根目录执行（保留数据）：
-
-```bash
-docker compose -f frameworks/mybatis/3.6.0/examples/first-query/compose.yaml down
-```
-
-初始化 SQL 只在新数据卷首次启动时自动执行。已有数据卷的密码不会因修改 `.env` 自动更新；请保留与其匹配的本机配置。
+该命令编译源码及示例，跳过上游测试集。Maven 中的语言版本不能代替本机 JDK 安装，`JAVA_HOME` 和 IDE Maven JDK 仍需使用 21。

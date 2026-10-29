@@ -2,6 +2,10 @@ package io.github.advance1997.learning.mybatis;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import org.apache.ibatis.io.Resources;
@@ -12,8 +16,8 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 /**
  * MyBatis 最小查询示例，通过独立启动方法读取 MySQL 中的学习用户。
  *
- * <p>运行前需要初始化数据库，并通过环境变量 MYSQL_PASSWORD 提供数据库密码。
- * 连接地址和用户名可以分别通过 MYSQL_URL、MYSQL_USER 覆盖默认值。</p>
+ * <p>运行前需要初始化 MySQL，并在仓库根目录的 env.conf 中填写连接信息。
+ * 程序从当前工作目录向上查找配置文件，不依赖 Docker 或操作系统环境变量。</p>
  *
  * @author advance
  * @since 2026-10-29 10:08:04
@@ -35,8 +39,8 @@ public final class FirstQueryApplication {
      * 加载配置、创建会话并执行一次 Mapper 查询；退出作用域时自动关闭会话。
      *
      * @param args 命令行参数，本示例不使用
-     * @throws IOException 配置资源无法读取时抛出
-     * @throws IllegalStateException 数据库密码缺失或初始化数据不存在时抛出
+     * @throws IOException 本机配置或 MyBatis 配置无法读取时抛出
+     * @throws IllegalStateException 必填连接配置缺失或初始化数据不存在时抛出
      */
     public static void main(String[] args) throws IOException {
         Properties properties = createDatabaseProperties();
@@ -59,22 +63,40 @@ public final class FirstQueryApplication {
     }
 
     /**
-     * 读取数据库连接参数，密码只从运行环境获取，不写入源码或日志。
+     * 从当前目录向上查找 env.conf，并以 UTF-8 读取数据库连接参数。
      *
-     * @return 用于替换 MyBatis 配置占位符的数据库属性
-     * @throws IllegalStateException 密码没有配置或为空白时抛出
+     * <p>支持从仓库根目录或其子模块启动，也兼容带 BOM 的 UTF-8 文件。
+     * 只校验变量是否已填写，不在异常或日志中输出账号密码。</p>
+     *
+     * @return 供 MyBatis XML 直接引用的本机配置变量
+     * @throws IOException 配置文件不存在或无法读取时抛出
+     * @throws IllegalStateException 必填变量缺失或为空白时抛出
      */
-    private static Properties createDatabaseProperties() {
-        String password = System.getenv("MYSQL_PASSWORD");
-        if (password == null || password.isBlank()) {
-            throw new IllegalStateException("请设置环境变量 MYSQL_PASSWORD");
+    private static Properties createDatabaseProperties() throws IOException {
+        Path directory = Path.of("").toAbsolutePath();
+        while (directory != null && !Files.isRegularFile(directory.resolve("env.conf"))) {
+            directory = directory.getParent();
+        }
+        if (directory == null) {
+            throw new IOException("未找到 env.conf，请在仓库根目录创建该文件，并从仓库或其子目录启动");
+        }
+
+        String content = Files.readString(directory.resolve("env.conf"), StandardCharsets.UTF_8);
+        if (content.startsWith("\uFEFF")) {
+            content = content.substring(1);
         }
 
         Properties properties = new Properties();
-        properties.setProperty("jdbc.url", System.getenv().getOrDefault("MYSQL_URL",
-                "jdbc:mysql://127.0.0.1:13306/mybatis_learning?sslMode=PREFERRED&connectionTimeZone=UTC"));
-        properties.setProperty("jdbc.username", System.getenv().getOrDefault("MYSQL_USER", "learning"));
-        properties.setProperty("jdbc.password", password);
+        try (Reader reader = new StringReader(content)) {
+            properties.load(reader);
+        }
+
+        for (String key : new String[] {"MYSQL_URL", "MYSQL_USER", "MYSQL_PASSWORD"}) {
+            String value = properties.getProperty(key);
+            if (value == null || value.isBlank()) {
+                throw new IllegalStateException("请在 env.conf 中填写变量：" + key);
+            }
+        }
 
         return properties;
     }
