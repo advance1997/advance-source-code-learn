@@ -8,10 +8,14 @@ package io.github.advance1997.learning.mybatis;
  */
 public class LearningUser {
 
-    /** 用户主键，由数据库结果集映射赋值。 */
+    /**
+     * 用户主键，由数据库结果集映射赋值。
+     */
     private Long id;
 
-    /** 用户名称。 */
+    /**
+     * 用户名称。
+     */
     private String name;
 
     /**
@@ -54,5 +58,15 @@ public class LearningUser {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * 返回用户对象的可读表示，便于检查数据库查询后的字段映射结果。
+     *
+     * @return 包含用户主键和名称的字符串
+     */
+    @Override
+    public String toString() {
+        return "LearningUser{id=" + id + ", name='" + name + "'}";
     }
 }

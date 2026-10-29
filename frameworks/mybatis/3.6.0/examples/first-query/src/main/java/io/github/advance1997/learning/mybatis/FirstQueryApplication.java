@@ -20,9 +20,14 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
  */
 public final class FirstQueryApplication {
 
-    /** 本次示例查询的用户主键，与初始化脚本中的记录保持一致。 */
+    /**
+     * 本次示例查询的用户主键，与初始化脚本中的记录保持一致。
+     */
     private static final long SAMPLE_USER_ID = 1L;
 
+    /**
+     * 隐藏构造方法，启动类只通过静态入口运行，无需创建实例。
+     */
     private FirstQueryApplication() {
     }
 
@@ -35,6 +40,7 @@ public final class FirstQueryApplication {
      */
     public static void main(String[] args) throws IOException {
         Properties properties = createDatabaseProperties();
+
         SqlSessionFactory sessionFactory;
         try (Reader reader = Resources.getResourceAsReader("mybatis-config.xml")) {
             sessionFactory = new SqlSessionFactoryBuilder().build(reader, properties);
@@ -43,6 +49,7 @@ public final class FirstQueryApplication {
         try (SqlSession session = sessionFactory.openSession()) {
             UserMapper userMapper = session.getMapper(UserMapper.class);
             LearningUser user = userMapper.selectById(SAMPLE_USER_ID);
+
             if (user == null) {
                 throw new IllegalStateException("未找到示例用户，请先执行数据库初始化脚本");
             }
@@ -68,6 +75,7 @@ public final class FirstQueryApplication {
                 "jdbc:mysql://127.0.0.1:13306/mybatis_learning?sslMode=PREFERRED&connectionTimeZone=UTC"));
         properties.setProperty("jdbc.username", System.getenv().getOrDefault("MYSQL_USER", "learning"));
         properties.setProperty("jdbc.password", password);
+
         return properties;
     }
 }
